@@ -84,9 +84,9 @@ def load_model(args):
         overwrite_config["mm_spatial_pool_mode"] = args.mm_spatial_pool_mode
         overwrite_config["mm_spatial_pool_stride"] = args.mm_spatial_pool_stride
         overwrite_config["mm_newline_position"] = args.mm_newline_position
-        tokenizer, model, image_processor, context_len = load_pretrained_model(args.model_path, args.model_base, model_name, load_8bit=args.load_8bit, overwrite_config=overwrite_config)
+        tokenizer, model, image_processor, context_len = load_pretrained_model(args.model_path, args.model_base, model_name, load_8bit=args.load_8bit, overwrite_config=overwrite_config, attn_implementation="eager")
     else:
-        tokenizer, model, image_processor, context_len = load_pretrained_model(args.model_path, args.model_base, model_name)
+        tokenizer, model, image_processor, context_len = load_pretrained_model(args.model_path, args.model_base, model_name, attn_implementation="eager")
     
     if getattr(model.config, "force_sample", None) is not None:
         args.force_sample = model.config.force_sample
