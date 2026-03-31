@@ -110,9 +110,22 @@ def run_one_inference(prompt, image_files, tokenizer, model, image_processor):
 
 
 def main():
-    with open(args.data_file, 'r') as f:
-        data_list = json.load(f)
-    output_file = args.data_file.replace('input', 'output')
+    if os.path.isdir(args.data_file):
+        json_files = sorted([
+            os.path.join(args.data_file, f)
+            for f in os.listdir(args.data_file) if f.endswith('.json')
+        ])
+        if not json_files:
+            raise FileNotFoundError(f"No JSON files found in directory: {args.data_file}")
+        data_list = []
+        for jf in json_files:
+            with open(jf, 'r') as f:
+                data_list.extend(json.load(f))
+        output_file = args.data_file.rstrip('/').replace('input', 'output') + '_output.json'
+    else:
+        with open(args.data_file, 'r') as f:
+            data_list = json.load(f)
+        output_file = args.data_file.replace('input', 'output')
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
     print(f'Reading {len(data_list)} queries from {args.data_file}, saving output to {output_file}')
     
