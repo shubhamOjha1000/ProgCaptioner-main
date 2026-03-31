@@ -1,7 +1,7 @@
 [
     {
         "idx": 0,
-        "n_frames": 10,
+        "n_frames": 5,
         "image_files": [
             "/content/drive/MyDrive/extracted_frames/frame_0000.png",
             "/content/drive/MyDrive/extracted_frames/frame_0066.png",
