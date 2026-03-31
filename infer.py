@@ -15,6 +15,20 @@ _llava_next_path = os.path.join(_script_dir, "LLaVA-NeXT")
 if os.path.isdir(_llava_next_path) and _llava_next_path not in sys.path:
     sys.path.insert(0, _llava_next_path)
 
+# Patch transformers.modeling_utils for newer transformers versions that moved
+# apply_chunking_to_forward, find_pruneable_heads_and_indices, prune_linear_layer
+# to transformers.pytorch_utils
+import transformers.modeling_utils as _modeling_utils
+if not hasattr(_modeling_utils, 'apply_chunking_to_forward'):
+    from transformers.pytorch_utils import (
+        apply_chunking_to_forward,
+        find_pruneable_heads_and_indices,
+        prune_linear_layer,
+    )
+    _modeling_utils.apply_chunking_to_forward = apply_chunking_to_forward
+    _modeling_utils.find_pruneable_heads_and_indices = find_pruneable_heads_and_indices
+    _modeling_utils.prune_linear_layer = prune_linear_layer
+
 from llava.constants import IMAGE_TOKEN_INDEX, DEFAULT_IMAGE_TOKEN, DEFAULT_IM_START_TOKEN, DEFAULT_IM_END_TOKEN
 from llava.conversation import conv_templates
 from llava.model.builder import load_pretrained_model
