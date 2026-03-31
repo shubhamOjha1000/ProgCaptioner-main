@@ -19,15 +19,24 @@ if os.path.isdir(_llava_next_path) and _llava_next_path not in sys.path:
 # apply_chunking_to_forward, find_pruneable_heads_and_indices, prune_linear_layer
 # to transformers.pytorch_utils
 import transformers.modeling_utils as _modeling_utils
-if not hasattr(_modeling_utils, 'apply_chunking_to_forward'):
-    from transformers.pytorch_utils import (
-        apply_chunking_to_forward,
-        find_pruneable_heads_and_indices,
-        prune_linear_layer,
-    )
-    _modeling_utils.apply_chunking_to_forward = apply_chunking_to_forward
-    _modeling_utils.find_pruneable_heads_and_indices = find_pruneable_heads_and_indices
-    _modeling_utils.prune_linear_layer = prune_linear_layer
+def _patch_modeling_utils():
+    import importlib
+    for name in ['apply_chunking_to_forward', 'find_pruneable_heads_and_indices', 'prune_linear_layer']:
+        if hasattr(_modeling_utils, name):
+            continue
+        found = False
+        for mod_name in ['transformers.pytorch_utils', 'transformers.modeling_utils']:
+            try:
+                mod = importlib.import_module(mod_name)
+                if hasattr(mod, name):
+                    setattr(_modeling_utils, name, getattr(mod, name))
+                    found = True
+                    break
+            except Exception:
+                continue
+        if not found:
+            raise ImportError(f"Cannot find '{name}' in transformers. Try: pip install 'transformers==4.37.0'")
+_patch_modeling_utils()
 
 from llava.constants import IMAGE_TOKEN_INDEX, DEFAULT_IMAGE_TOKEN, DEFAULT_IM_START_TOKEN, DEFAULT_IM_END_TOKEN
 from llava.conversation import conv_templates
